@@ -22,6 +22,23 @@ final class CategorieController extends AbstractController
         ]);
     }
 
+#[Route('/api/categories', name: 'api_categories', methods: ['GET'])]
+public function getCategories(CategorieRepository $categorieRepository): Response
+{
+    $categories = $categorieRepository->findAll();
+    $data = [];
+
+    foreach ($categories as $categorie) {
+        $data[] = [
+            'id' => $categorie->getId(),
+            'nom' => $categorie->getNom(),
+        ];
+    }
+
+    return $this->json($data);
+}
+
+
     #[Route('/new', name: 'app_categorie_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {

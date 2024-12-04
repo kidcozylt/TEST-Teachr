@@ -22,26 +22,29 @@ final class ProduitController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_produit_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+   
+    #[Route('/api/produit/new', name: 'app_produit_new', methods: ['GET' , 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, CategorieRepository $categorieRepository): Response
     {
-        $produit = new Produit();
-        $form = $this->createForm(ProduitType::class, $produit);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($produit);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_produit_index', [], Response::HTTP_SEE_OTHER);
+        $data = json_decode($request->getContent(), true);
+    
+        $categorie = $categorieRepository->find($data['categorie']);
+        if (!$categorie) {
+            return $this->json(['error' => 'Category not found'], Response::HTTP_BAD_REQUEST);
         }
-
-        return $this->render('produit/new.html.twig', [
-            'produit' => $produit,
-            'form' => $form,
-        ]);
+    
+        $produit = new Produit();
+        $produit->setNom($data['nom']);
+        $produit->setDescription($data['description']);
+        $produit->setPrix($data['prix']);
+        $produit->setCategorie($categorie);
+        $produit->setDatedecreation(new \DateTime());
+    
+        $entityManager->persist($produit);
+        $entityManager->flush();
+    
+        return $this->json(['success' => 'Product added successfully'], Response::HTTP_CREATED);
     }
-
     #[Route('/{id}', name: 'app_produit_show', methods: ['GET'])]
     public function show(Produit $produit): Response
     {
