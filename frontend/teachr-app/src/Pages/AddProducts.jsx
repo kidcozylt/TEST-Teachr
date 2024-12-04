@@ -24,7 +24,7 @@ const AddProduit = () => {
       prix,
     };
 
-    axios.post('http://127.0.0.1:8000/api/produits/new', produitData, {
+    axios.post('http://localhost:8000/api/produit/new', produitData, {
       headers: {
         'Content-Type': 'application/json',
       },
